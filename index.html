@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="style.css" media="all"/>
+    <script type="text/javascript" src="./jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript" src="date.js"></script>
+
+    <!--  Usign Chart.js as graph generator  -->
+    <script type="text/javascript" src="Chart.js"></script>
+
+
+    <!-- Using jqPlot as graph generator  -->
+    <link rel="stylesheet" type="text/css" href="jquery.jqplot.css" media="all"/>
+    <script type="text/javascript" src="jquery.jqplot.js"></script>
+    <script type="text/javascript" src="jqplot.dateAxisRenderer.js"></script>
+    <script type="text/javascript" src="jqplot.highlighter.js"></script>
+    <script type="text/javascript" src="jqplot.cursor.js"></script>
+    <script type="text/javascript" src=""></script>
+    <!-- End of jqPlot consistents  -->
+
+
+    <title></title>
+
+</head>
+<body>
+<div id="header"></div>
+<div id="middle">
+    <div id="pmChart">
+    </div>
+    <div id="funcButton">
+        <button id="resetZoomPM">Show full graph</button>
+
+    </div>
+</div>
+<div id="weather">
+    <div id="toShow">
+        <input class="weatherType" id="c_temperature" type="checkbox" checked="checked"/> temperature
+        <input class="weatherType" id="c_humidity" type="checkbox" checked="false"/> humidity
+        <input class="weatherType" id="c_windSpeed" type="checkbox" checked="false"/> wind speed
+    </div>
+    <div id="setDate">
+        <select id="s_year" name="year" onchange="s_febday();"></select>年
+        <select id="s_month" onchange="s_febday();"></select>月
+        <select id="s_day"></select>日
+        <button id="confirmDate" onclick="requestWeather()">OK</button>
+    </div>
+    <p id="weatherData">
+        Not loaded...
+    </p>
+
+    <div id="weatherChart">
+    </div>
+    <button id="resetZoomWeather">Show full graph</button>
+</div>
+</body>
+</html>

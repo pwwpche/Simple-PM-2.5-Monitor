@@ -1,0 +1,32 @@
+
+
+
+body{
+	background:#f8f8f8 url(bg.jpg) center top no-repeat fixed ;
+	top:0; 
+	left:0; 
+	bottom:0; 
+	right:0; 
+}
+
+#header{
+	height : 40px;
+}
+
+#middle{
+	margin: 0 auto;
+	width : 80%;
+	height: 400px;
+}
+#pmChart
+{
+	margin: 0 auto;
+	height: 350px;
+	width : 1000px;
+}
+#weatherChart
+{
+    width: 1000px;
+    height: 400px;
+    margin: 0 auto;
+}
