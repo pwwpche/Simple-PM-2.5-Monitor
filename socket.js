@@ -118,7 +118,10 @@ io.sockets.on('connection', function (socket) {
         console.log("reqDate");
         var proxyContent = '';
 <<<<<<< HEAD
+<<<<<<< HEAD
         /*
+=======
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 =======
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
         //Generate request address
@@ -134,9 +137,13 @@ io.sockets.on('connection', function (socket) {
             proxyContent = proxyContent + reqData(server, addr, socket, 'weather');
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         socket.emit('weather', proxyContent)
         */
 
+=======
+        /*
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 =======
         /*
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
@@ -153,8 +160,13 @@ io.sockets.on('connection', function (socket) {
          var proxyContent = '';
          reqData(server, addr, socket, 'weather');
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
+=======
+         */
+        socket.emit('weather', proxyContent)
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 =======
          */
         socket.emit('weather', proxyContent)

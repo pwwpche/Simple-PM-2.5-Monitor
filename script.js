@@ -190,8 +190,11 @@ function updateWeather()
 {
     console.log("hook");
 <<<<<<< HEAD
+<<<<<<< HEAD
     console.log(plotPM.axes.xaxis.min);
     console.log(plotPM.axes.xaxis.max);
+=======
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 =======
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     if(plotPM.axes.xaxis.min != pmRange.x_min)
@@ -204,8 +207,13 @@ function updateWeather()
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 =======
 
 
@@ -376,8 +384,11 @@ function reqWeatherByPM()
     start.setTime(plotPM.axes.xaxis.min);
     end.setTime(plotPM.axes.xaxis.max);
 <<<<<<< HEAD
+<<<<<<< HEAD
     console.log(plotPM.axes.xaxis.min);
     console.log(plotPM.axes.xaxis.max);
+=======
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 =======
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     var range =
@@ -394,6 +405,9 @@ function reqWeatherByPM()
             day: end.getDay() + 2
 =======
             day: end.getDay()
+<<<<<<< HEAD
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
+=======
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
         },
         day: (end.getTime() - start.getTime()) / (1000*3600*24)
@@ -524,8 +538,11 @@ socket.on('weather', function (data)
     }
     var weatherInfo = getWeatherDay(data);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     console.log("painting...");
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     var paintData = new Array();
@@ -566,6 +583,9 @@ socket.on('weather', function (data)
     console.log(paintData);
 =======
 
+<<<<<<< HEAD
+>>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
+=======
 >>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     pwFunction[paintData.length](paintData,  'weatherChart', labels);
 });
