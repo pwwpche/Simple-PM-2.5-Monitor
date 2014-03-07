@@ -117,13 +117,8 @@ io.sockets.on('connection', function (socket) {
     socket.on('reqDate', function (range) {
         console.log("reqDate");
         var proxyContent = '';
-<<<<<<< HEAD
-<<<<<<< HEAD
         /*
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
+
         //Generate request address
         for (var i = 0; i < range.days; i++) {
             var path = '/history/airport/ZSSS/' + range.start.year + '/' + range.start.month + '/'
@@ -136,17 +131,13 @@ io.sockets.on('connection', function (socket) {
             var server = require('http');
             proxyContent = proxyContent + reqData(server, addr, socket, 'weather');
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         socket.emit('weather', proxyContent)
         */
 
-=======
-        /*
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
-        /*
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
+
+
+
          var pathStart = '/history/airport/ZSSS/' + range.start.year + '/' + range.start.month + '/'
          + range.start.day + '/DailyHistory.html?format=1';
          var pathEnd = '/history/airport/ZSSS/' + range.end.year + '/' + range.end.month + '/'
@@ -159,18 +150,9 @@ io.sockets.on('connection', function (socket) {
          var server = require('http');
          var proxyContent = '';
          reqData(server, addr, socket, 'weather');
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-
-=======
-         */
+         
         socket.emit('weather', proxyContent)
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
-         */
-        socket.emit('weather', proxyContent)
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     });
 
 });

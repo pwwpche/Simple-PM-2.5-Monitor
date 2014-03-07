@@ -189,14 +189,6 @@ function paintWeather2(data, divId, labels)
 function updateWeather()
 {
     console.log("hook");
-<<<<<<< HEAD
-<<<<<<< HEAD
-    console.log(plotPM.axes.xaxis.min);
-    console.log(plotPM.axes.xaxis.max);
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     if(plotPM.axes.xaxis.min != pmRange.x_min)
     {
         reqWeatherByPM();
@@ -206,18 +198,7 @@ function updateWeather()
         pmRange.y_max = plotPM.axes.yaxis.max;
     }
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-
-=======
-
-
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
-
-
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
 function paintWeather3(data, divId, labels)
 {
 
@@ -383,14 +364,6 @@ function reqWeatherByPM()
     var end = new Date();
     start.setTime(plotPM.axes.xaxis.min);
     end.setTime(plotPM.axes.xaxis.max);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    console.log(plotPM.axes.xaxis.min);
-    console.log(plotPM.axes.xaxis.max);
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     var range =
     {
         start: {
@@ -401,14 +374,7 @@ function reqWeatherByPM()
         end: {
             year: end.getFullYear(),
             month: end.getMonth() + 1,
-<<<<<<< HEAD
             day: end.getDay() + 2
-=======
-            day: end.getDay()
-<<<<<<< HEAD
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
         },
         day: (end.getTime() - start.getTime()) / (1000*3600*24)
     }
@@ -537,14 +503,6 @@ socket.on('weather', function (data)
         plotWeather.destroy();
     }
     var weatherInfo = getWeatherDay(data);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-    console.log("painting...");
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     var paintData = new Array();
     var labels = new Array();
     if(document.getElementById("c_temperature").checked == true)
@@ -579,14 +537,6 @@ socket.on('weather', function (data)
         labels.push("windSpeed");
         paintData.push(temp);
     }
-<<<<<<< HEAD
-    console.log(paintData);
-=======
-
-<<<<<<< HEAD
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
-=======
->>>>>>> 4f895333d9034d21510d05c337cbc22affa666e3
     pwFunction[paintData.length](paintData,  'weatherChart', labels);
 });
 
