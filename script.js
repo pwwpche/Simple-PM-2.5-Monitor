@@ -1,78 +1,42 @@
 var proxyContent = '';
 var socket = io.connect('http://localhost:1111');
 var plotPM;
+var pmID = 1;
 var pmRange =
 {
-    x_max : 0,
-    x_min : 0,
-    y_max : 0,
-    y_min : 0
+    x_max: 0,
+    x_min: 0,
+    y_max: 0,
+    y_min: 0,
+    day: 0
 };
 var plotWeather;
 var weatherLoaded = false;
+var receiveCount = 0;
+var receivedData = '';
+
 
 var pwFunction = {};
 pwFunction[0] = paintWeather;
 pwFunction[1] = paintWeather;
 pwFunction[2] = paintWeather2;
 pwFunction[3] = paintWeather3;
-/*
- function paint2(data,canvasId){
- var time = {};
- var aqi = {};
- for(var i = 0 ; i < data.length ; i++){
- time[i] = data[i].time[0].replace(/(\d+)-(\d+)-(\d+)/ , "$3-$1-$2");
- console.log(time[i]);
- aqi[i] = parseInt(data[i].AQI[0]);
- console.log(aqi[i]);
- }
- console.log(aqi);
- var mydata={
- labels : time,
- datasets : [
- {
- fillColor : "rgba(220,220,220,0.5)",
- strokeColor : "rgba(220,220,220,1)",
- pointColor : "rgba(220,220,220,1)",
- pointStrokeColor : "#fff",
- data : aqi
- }
- ]
- }
- //Get context with jQuery - using jQuery's .get() method.
- var ctx = document.getElementById(canvasId).getContext("2d");
- //This will get the first returned node in the jQuery collection.
- var myNewChart = new Chart(ctx).Line(mydata);
 
- }
- */
-function UTCtoCST(UTCStr)
-{
+function UTCtoCST(UTCStr) {
     var cstDate = new Date();
 
-    cstDate.setTime(Date.parse(UTCStr) + 1000*3600*8);
+    cstDate.setTime(Date.parse(UTCStr) + 1000 * 3600 * 8);
     return cstDate.toLocaleString();
 }
 
-function paintPM(data, divId)
-{
+function paintPM(data, divId) {
     var data2 = new Array();
     for (var i = 0; i < data.length; i++) {
         var time = data[i].time[0].replace(/(\d+)-(\d+)-(\d+)/, "$3-$1-$2");
         var aqi = parseInt(data[i].AQI[0]);
         data2.push([time, aqi]);
     }
-    /*
-     var time = {};
-     var aqi = {};
-     var data = {};
-     for(var i = 0 ; i < 7 ; i++){
-     time[i] = "01-2"+i +"-2014 1" + i + ":00"
-     aqi[i] = 110 + 2*i;
-     data[i] = [time[i].replace(/(\d+)-(\d+)-(\d+)/ , "$3-$1-$2"), aqi[i]];
-     console.log(data[i]);
-     }
-     */
+
     plotPM = $.jqplot(divId, [data2], {
         title: '@Con Gen ShanghaiAir',
         axes: {
@@ -101,12 +65,10 @@ function paintPM(data, divId)
 
 }
 
-function paintWeather(data, divId, labels)
-{
+function paintWeather(data, divId, labels) {
     plotWeather = $.jqplot(divId, data, {
         title: '@Shanghai Weather',
-        legend:
-        {
+        legend: {
             show: true,
             labels: labels
         },
@@ -136,8 +98,7 @@ function paintWeather(data, divId, labels)
 
 }
 
-function paintWeather2(data, divId, labels)
-{
+function paintWeather2(data, divId, labels) {
 
     plotWeather = $.jqplot(divId, data, {
         title: '@Shanghai Weather',
@@ -151,8 +112,7 @@ function paintWeather2(data, divId, labels)
             zoom: true
         },
         axesDefaults: {useSeriesColor: true},
-        legend:
-        {
+        legend: {
             show: true,
             labels: labels
         },
@@ -186,21 +146,23 @@ function paintWeather2(data, divId, labels)
     });
 
 }
-function updateWeather()
-{
+
+function updateWeather() {
     console.log("hook");
-    if(plotPM.axes.xaxis.min != pmRange.x_min)
-    {
+    console.log("min=" + plotPM.axes.xaxis.min);
+    console.log("max=" + plotPM.axes.xaxis.max);
+
+    if (plotPM.axes.xaxis.min != pmRange.x_min) {
         reqWeatherByPM();
         pmRange.x_min = plotPM.axes.xaxis.min;
         pmRange.x_max = plotPM.axes.xaxis.max;
         pmRange.y_min = plotPM.axes.yaxis.min;
         pmRange.y_max = plotPM.axes.yaxis.max;
     }
+
 }
 
-function paintWeather3(data, divId, labels)
-{
+function paintWeather3(data, divId, labels) {
 
     plotWeather = $.jqplot(divId, data, {
         title: '@Shanghai Weather',
@@ -215,8 +177,7 @@ function paintWeather3(data, divId, labels)
             zoom: true
         },
         axesDefaults: {useSeriesColor: true},
-        legend:
-        {
+        legend: {
             show: true,
             labels: labels
         },
@@ -235,13 +196,13 @@ function paintWeather3(data, divId, labels)
             y2axis: {
                 tickOptions: {
                     formatString: '%d',
-                    showGridline:false
+                    showGridline: false
                 }
             },
             y3axis: {
                 tickOptions: {
                     formatString: '%d',
-                    showGridline:false
+                    showGridline: false
                 }
             }
         },
@@ -257,20 +218,23 @@ function paintWeather3(data, divId, labels)
     });
 
 }
-function getWeatherDay(str)
-{
 
+function getWeatherDay(str) {
+    console.log("getWeatherDay");
     var dayInfo = new Array();
     var infoData = new Array();
     var startPos = 0;
     var endPos = 0;
     var dayStr;
-    while(1)
-    {
-        startPos = str.indexOf('TimeCST');
+    var count = 0;
+    while (1) {
+        count++;
+        if (count > 10) {
+            break;
+        }
+        startPos = str.indexOf('TimeCST', startPos);
         endPos = str.indexOf('TimeCST', startPos + 1);
-        if(endPos == -1 )
-        {
+        if (endPos == -1) {
             endPos = str.length;
             dayStr = str.substring(startPos, endPos);
             dayInfo.push(formatWeather(dayStr));
@@ -278,25 +242,33 @@ function getWeatherDay(str)
         }
         dayStr = str.substring(startPos, endPos);
         dayInfo.push(formatWeather(dayStr));
-        endPos = startPos;
+        startPos = endPos;
     }
-
-    for(var i = 0 ; i < dayInfo.length ; i++)
-    {
-        for(var j=0 ; j < dayInfo[i].length ; j++)
-        {
-            infoData.push(dayInfo[i][j]);
+    if (dayInfo != null) {
+        for (var i = 0; i < dayInfo.length; i++) {
+            if (dayInfo[i] != null) {
+                for (var j = 0; j < dayInfo[i].length; j++) {
+                    if (dayInfo[i][j] != null) {
+                        infoData.push(dayInfo[i][j]);
+                    }
+                }
+            }
         }
     }
     return infoData;
 
 }
 
-function formatWeather(str)
-{
+function formatWeather(str) {
     /*
      var str = "TimeCST,TemperatureC,Dew PointC,Humidity,Sea Level PressurehPa,VisibilityKm,Wind Direction,Wind SpeedKm/h,Gust SpeedKm/h,Precipitationmm,Events,Conditions,WindDirDegrees,DateUTC<br />12:00 AM,8.0,4.0,76,1028,6.0,East,10.8,-,N/A,,Unknown,90,2014-02-23 16:00:00<br />12:30 AM,8.0,4.0,76,1028,6.0,East,7.2,-,N/A,,Unknown,90,2014-02-23 16:30:00<br />1:00 AM,7.0,4.0,81,1028,6.0,East,7.2,-,N/A,,Unknown,80,2014-02-23 17:00:00<br />"
      */
+    if (str == null) {
+        return;
+    }
+    if (str.indexOf("No daily or hourly history data available") != -1) {
+        return;
+    }
     var lineStr = new Array();
     var infoData = new Array();
     var startPos = str.indexOf('DateUTC') + 13;
@@ -317,9 +289,7 @@ function formatWeather(str)
     return infoData;
 }
 
-function extractWeather(str)
-{
-    console.log("in extractWeather");
+function extractWeather(str) {
     var data = new Array();
     var i = 0;
     var startPos = 1;
@@ -358,32 +328,38 @@ function extractWeather(str)
     dayInfo.millisecond = convertMillisec(dayInfo);
     return dayInfo;
 }
-function reqWeatherByPM()
-{
+
+function reqWeatherByPM() {
     var start = new Date();
     var end = new Date();
     start.setTime(plotPM.axes.xaxis.min);
     end.setTime(plotPM.axes.xaxis.max);
+
+    console.log("reqWeatherByPM");
+    console.log("min=" + plotPM.axes.xaxis.min);
+    console.log("max=" + plotPM.axes.xaxis.max);
+
     var range =
     {
         start: {
             year: start.getFullYear(),
             month: start.getMonth() + 1,
-            day: start.getDay() + 2
+            day: start.getDate()
         },
         end: {
             year: end.getFullYear(),
             month: end.getMonth() + 1,
-            day: end.getDay() + 2
+            day: end.getDate()
         },
-        day: (end.getTime() - start.getTime()) / (1000*3600*24)
+        day: (end.getTime() - start.getTime()) / (1000 * 3600 * 24)
     }
-    console.log("range is");
+    pmRange.days = range.day;
+    console.log("reqWeatherByPM range is");
     console.log(range);
     socket.emit('reqDate', range);
+
 }
-function requestWeather()
-{
+function requestWeather() {
     var range2 =
     {
         start: {
@@ -408,14 +384,17 @@ function requestWeather()
             year: document.getElementById("s_year").options[document.getElementById("s_year").selectedIndex].text,
             month: document.getElementById("s_month").options[document.getElementById("s_month").selectedIndex].text,
             day: document.getElementById("s_day").options[document.getElementById("s_day").selectedIndex].text
-        }
+        },
+        day: 1
     };
     socket.emit('reqDate', range);
 }
 
-function convertMillisec(info)
-{
+function convertMillisec(info) {
     //dateUTC: "2000-01-18 16:00:00"
+    if (info.dateUTC == null) {
+        return;
+    }
     var utc = info.dateUTC;
     var year = parseInt(utc.substring(0, 4));
     var month = parseInt(utc.substring(5, 7));
@@ -427,18 +406,19 @@ function convertMillisec(info)
 }
 
 /*Received PM 2.5 Data of this day*/
-socket.on('Content', function (data)
-{
+socket.on('Content', function (data) {
     /*===Many of the variants and lines below can be eliminated, but I'm too lazy, so...===*/
     proxyContent = data;
+    console.log(data);
+    /*
     var start = proxyContent.indexOf('<div class="content">');
-    var end = proxyContent.indexOf("</div><a")
-    proxyContent = proxyContent.substr(start + 21, end - start - 40);
+    var end = proxyContent.indexOf("</div><a", start);
+    proxyContent = proxyContent.substring(start, end);
     console.log("Proxy Conent Done");
-
+    console.log(proxyContent);
+    */
     var group = new Array();
     proxyContent = proxyContent.replace(/<script[^>]*>[^<]*?<\/script>/ig, "     ");
-
     /* Temporary Variables  */
     var avg = new Array();
     var avgIdx = 0;
@@ -454,7 +434,7 @@ socket.on('Content', function (data)
 
     /* Look for one record item  */
     group = proxyContent.match(/..-..-....\s..:..*?\s\s\s\s\s/gi);
-
+    console.log(group);
     for (var j = 0; j < group.length; j++) {
         /* If item contains 'avg' , then true */
         if (pattern.test(group[j])) {
@@ -493,9 +473,10 @@ socket.on('Content', function (data)
 });
 
 /*Weather of that day received, parse it and then paint the chart*/
-socket.on('weather', function (data)
-{
-
+socket.on('weather', function (data) {
+    if (data == null) {
+        return;
+    }
     if (weatherLoaded == false) {
         weatherLoaded = true;
     }
@@ -503,10 +484,13 @@ socket.on('weather', function (data)
         plotWeather.destroy();
     }
     var weatherInfo = getWeatherDay(data);
+    //console.log("weatherInfo");
+    //console.log(weatherInfo);
+    receiveCount = 0;
+    receivedData = '';
     var paintData = new Array();
     var labels = new Array();
-    if(document.getElementById("c_temperature").checked == true)
-    {
+    if (document.getElementById("c_temperature").checked == true) {
         var temp = new Array();
         for (var i = 0; i < weatherInfo.length; i++) {
             temp.push([UTCtoCST(weatherInfo[i].dateUTC), parseInt(weatherInfo[i].temperature)]);
@@ -516,8 +500,7 @@ socket.on('weather', function (data)
         labels.push("temperature");
     }
 
-    if(document.getElementById("c_humidity").checked == true)
-    {
+    if (document.getElementById("c_humidity").checked == true) {
         var temp = new Array();
         for (var i = 0; i < weatherInfo.length; i++) {
             temp.push([UTCtoCST(weatherInfo[i].dateUTC), parseInt(weatherInfo[i].humidity)]);
@@ -527,8 +510,7 @@ socket.on('weather', function (data)
         paintData.push(temp);
     }
 
-    if(document.getElementById("c_windSpeed").checked == true)
-    {
+    if (document.getElementById("c_windSpeed").checked == true) {
         var temp = new Array();
         for (var i = 0; i < weatherInfo.length; i++) {
             temp.push([UTCtoCST(weatherInfo[i].dateUTC), parseInt(weatherInfo[i].windSpeed)]);
@@ -537,11 +519,11 @@ socket.on('weather', function (data)
         labels.push("windSpeed");
         paintData.push(temp);
     }
-    pwFunction[paintData.length](paintData,  'weatherChart', labels);
+    pwFunction[paintData.length](paintData, 'weatherChart', labels);
+
 });
 
-$(document).ready(function ()
-{
+$(document).ready(function () {
     $("#resetZoomPM").click(function () {
         console.log("x_min = " + plotPM.axes.xaxis.min);
         console.log("x_max = " + plotPM.axes.xaxis.max);
@@ -556,9 +538,39 @@ $(document).ready(function ()
         plotPM.resetZoom();
     });
 
+    if(pmID <= 1)
+    {
+        $("#futurePM").hide();
+    }
+
     $("#resetZoomWeather").click(function () {
         plotWeather.resetZoom();
     });
     //$(".weatherType").click(requestWeather());
     s_list();
+
+    $(".weatherType").click(function(){
+        reqWeatherByPM();
+    });
+
+
+    $("#prevPM").click(function(){
+        pmID++;
+        plotPM.destroy();
+        socket.emit("reqPM", pmID);
+        if(pmID > 1)
+        {
+            $("#futurePM").show();
+        }
+    });
+
+    $("#futurePM").click(function(){
+        if(pmID == 1)
+        {
+            return ;
+        }
+        pmID--;
+        plotPM.destroy();
+        socket.emit("reqPM", pmID);
+    })
 });

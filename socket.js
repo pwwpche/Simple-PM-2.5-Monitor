@@ -1,8 +1,8 @@
 var app = require('express')()
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server);
-server.listen(1111);
 
+server.listen(1111);
 
 app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
@@ -57,28 +57,33 @@ app.get('/bg.jpg', function (req, res) {
 });
 
 
-function reqData(server, addr, socket, emitStr) {
+function reqPM(socket, emitStr, reqDay) {
+    var server = require("http");
+    var addr = {
+        host: 'localhost',
+        port: '8087',
+        method: 'GET',
+        path: 'http://tweettunnel.com/reverse3.php?b=&pgn=32&bt=443314230825975809&st=441909971714727936&id=562768872&pn=' + reqDay
+    }
     var proxyContent = '';
-    console.log("reqData");
+    console.log("reqPM");
     var req = server.request(addr, function (res) {
         res.on('data', function (dataChunk) {
             proxyContent += dataChunk;
         });
         res.on('end', function () {
             if (res.statusCode == 200) {
-                // Send data to html page
                 if (emitStr != "") {
                     socket.emit(emitStr, proxyContent);
                 }
                 else {
-                    return proxyContent;
+                    reqPM(socket, emitStr, reqDay);
                 }
-                console.log("end");
             }
         });
         if (res.statusCode != 200) {
             console.log("error1");
-            reqData(server, addr, socket, emitStr);
+            reqPM(socket, emitStr, reqDay);
         }
     });
     req.end();
@@ -87,17 +92,66 @@ function reqData(server, addr, socket, emitStr) {
     });
 }
 
+
+function reqWeather(socket, range, i, content) {
+    var fs = require('fs');
+    var fileName = range.start.year + '-' + range.start.month + '-' + (range.start.day + i) + "_Weather.txt";
+    var proxyContent = '';
+    if (i >= range.day) {
+        for (var j = 0; j < range.day; j++) {
+            proxyContent = proxyContent + content[j];
+        }
+        socket.emit('weather', proxyContent);
+        return;
+    }
+    fs.readFile(fileName, function (err, data) {
+        if (err) {
+            var path = '/history/airport/ZSSS/' + range.start.year + '/' + range.start.month + '/'
+                + (range.start.day + i) + '/DailyHistory.html?format=1';
+            var addr = {
+                host: 'www.wunderground.com',
+                path: path,
+                method: 'GET'
+            }
+            var server = require('http');
+
+
+            var req = server.request(addr, function (res) {
+                res.on('data', function (dataChunk) {
+                    proxyContent += dataChunk;
+                });
+                res.on('end', function () {
+                    if (res.statusCode == 200) {
+                        console.log(fileName + " not exists, create file");
+                        content[i] = proxyContent;
+                        fs.writeFile(fileName, proxyContent, 'utf-8');
+                        return reqWeather(socket, range, i + 1, content);
+                    }
+                });
+                if (res.statusCode != 200) {
+                    console.log("error1");
+                    return reqWeather(socket, range, i, content);
+                }
+            });
+            req.end();
+            req.on("error", function () {
+                console.log("error2");
+            });
+        }
+        else
+        {
+            console.log(fileName + "exists!");
+            content[i] = data;
+            return reqWeather(socket, range, i + 1, content);
+        }
+    });
+}
+
+
 //Send PM 2.5 data on the first connection
 io.sockets.on('connection', function (socket) {
     /*  Get Content Data  */
-    var proxyServer = require("http");
-    var proxyAddr = {
-        host: 'localhost',
-        port: '8087',
-        method: 'GET',
-        path: 'http://tweettunnel.com/reverse2.php?textfield=cgshanghaiair'
-    }
-    reqData(proxyServer, proxyAddr, socket, 'Content');
+    reqPM(socket, 'Content', 1);
 
     /*--------------------*/
 
@@ -107,52 +161,20 @@ io.sockets.on('connection', function (socket) {
      socket.emit('Content', proxyContent);
      */
     socket.on('received', function (data) {
-        console.log("Done");
+        console.log(data);
     });
 
 
 //Send weather data on second connection
-//Should be multiple dates???   NO!
-//Date format: date[year, month, day], all of them are string or int
     socket.on('reqDate', function (range) {
         console.log("reqDate");
-        var proxyContent = '';
-        /*
-
+        var proxyContent = new Array();
         //Generate request address
-        for (var i = 0; i < range.days; i++) {
-            var path = '/history/airport/ZSSS/' + range.start.year + '/' + range.start.month + '/'
-                + (range.start.day + i) + '/DailyHistory.html?format=1';
-            var addr = {
-                host: 'www.wunderground.com',
-                path: path,
-                method: 'GET'
-            }
-            var server = require('http');
-            proxyContent = proxyContent + reqData(server, addr, socket, 'weather');
-        }
+        reqWeather(socket, range, 0, proxyContent);
+    });
 
-        socket.emit('weather', proxyContent)
-        */
-
-
-
-
-         var pathStart = '/history/airport/ZSSS/' + range.start.year + '/' + range.start.month + '/'
-         + range.start.day + '/DailyHistory.html?format=1';
-         var pathEnd = '/history/airport/ZSSS/' + range.end.year + '/' + range.end.month + '/'
-         + range.end.day + '/DailyHistory.html?format=1';
-         var addr = {
-         host: 'www.wunderground.com',
-         path: pathStart,
-         method: 'GET'
-         }
-         var server = require('http');
-         var proxyContent = '';
-         reqData(server, addr, socket, 'weather');
-
-         
-        socket.emit('weather', proxyContent)
+    socket.on("reqPM", function(day){
+        reqPM(socket, 'Content', day);
     });
 
 });
